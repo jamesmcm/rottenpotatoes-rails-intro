@@ -12,6 +12,11 @@ class MoviesController < ApplicationController
 
   def index
     sortby=params[:sortby]
+    @all_ratings = Movie.select(:rating).distinct.order(:rating).pluck(:rating)
+    ratingsfilter=params[:ratings]
+    rfkeys=ratingsfilter.keys
+
+    #TODO filter on keys, remember checked buttons, make all buttons checked at start 
     if sortby=='title'
       @movies = Movie.order(:title)
     elsif sortby=='date'
