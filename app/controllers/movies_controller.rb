@@ -14,15 +14,21 @@ class MoviesController < ApplicationController
     sortby=params[:sortby]
     @all_ratings = Movie.select(:rating).distinct.order(:rating).pluck(:rating)
     ratingsfilter=params[:ratings]
-    rfkeys=ratingsfilter.keys
-
+    if not ratingsfilter.nil?
+      @ratingscheck = ratingsfilter.keys
+    end
+    
     #TODO filter on keys, remember checked buttons, make all buttons checked at start 
     if sortby=='title'
       @movies = Movie.order(:title)
     elsif sortby=='date'
       @movies = Movie.order(:release_date)
     else
-      @movies=Movie.all
+      if ratingsfilter.nil?
+        @movies = Movie.all #TODO make this use session settings
+      else
+        @movies=Movie.where(:rating => ratingsfilter.keys)
+      end
     end
   end
 
