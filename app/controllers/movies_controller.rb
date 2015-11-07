@@ -11,7 +11,36 @@ class MoviesController < ApplicationController
   end
 
   def index
-    sortby=params[:sortby]
+    puts params
+    if (params.nil? or not (params.has_key?("sortby") or params.has_key?("ratings")) ) and (session.has_key?("sortby") and session.has_key?("ratings"))
+      #No parameters passed, use session, redirect
+      sortby=session[:sortby]
+      ratingsfilter=session[:ratings]
+      #redirect with new parameters
+      flash.keep
+      redirect_to movies_path, sortby: sortby, ratings: ratingsfilter
+    elsif params.has_key?("sortby") and not (params.has_key?("ratings"))
+      sortby=params[:sortby]
+      ratingsfilter=session[:ratings]
+
+      session[:sortby]=params[:sortby]
+      #redirect with new parameters
+      flash.keep
+      redirect_to movies_path, sortby: sortby, ratings: ratingsfilter
+    elsif not (params.has_key?("sortby")) and params.has_key?("ratings")
+      sortby=session[:sortby]
+      ratingsfilter=params[:ratings]
+
+      session[:ratings]=params[:ratings]
+      #redirect with new parameters
+      flash.keep
+      redirect_to movies_path, sortby: sortby, ratings: ratingsfilter
+    else
+      session[:ratings]=params[:ratings]
+      session[:sortby]=params[:sortby]
+      #no need to redirect, we have both
+    end
+         
     @all_ratings = Movie.select(:rating).distinct.order(:rating).pluck(:rating)
     ratingsfilter=params[:ratings]
     if not ratingsfilter.nil?
