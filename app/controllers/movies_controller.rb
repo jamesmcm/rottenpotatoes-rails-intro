@@ -55,7 +55,7 @@ class MoviesController < ApplicationController
     if not ratingsfilter.nil?
       @ratingscheck = ratingsfilter.keys
     end
-    
+    @sortbyval=sortby
     #TODO filter on keys, remember checked buttons, make all buttons checked at start
     curchain = Movie.all
     if ratingsfilter.nil?
