@@ -13,12 +13,12 @@ class MoviesController < ApplicationController
   def index
     puts params
     puts session
-    if (params.nil? or not (params.has_key?("sortby") or params.has_key?("ratings")) ) and (session.has_key?("sortby") and session.has_key?("ratings"))
+    if (params.nil? or not (params.has_key?("sortby") or params.has_key?("ratings")) ) 
       #No parameters passed, use session, redirect
       sortby=session[:sortby]
       ratingsfilter=session[:ratings]
       #redirect with new parameters
-      if not (sortby.nil? and ratingsfilter.nil?)
+      unless (sortby.nil? and ratingsfilter.nil?)
         flash.keep
         redirect_to controller: 'movies', sortby: sortby, ratings: ratingsfilter
       end
