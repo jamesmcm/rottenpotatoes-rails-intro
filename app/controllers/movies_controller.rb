@@ -12,21 +12,26 @@ class MoviesController < ApplicationController
 
   def index
     puts params
+    puts session
     if (params.nil? or not (params.has_key?("sortby") or params.has_key?("ratings")) ) and (session.has_key?("sortby") and session.has_key?("ratings"))
       #No parameters passed, use session, redirect
       sortby=session[:sortby]
       ratingsfilter=session[:ratings]
       #redirect with new parameters
-      flash.keep
-      redirect_to movies_path, sortby: sortby, ratings: ratingsfilter
+      if not (sortby.nil? and ratingsfilter.nil?)
+        flash.keep
+        redirect_to controller: 'movies', sortby: sortby, ratings: ratingsfilter
+      end
     elsif params.has_key?("sortby") and not (params.has_key?("ratings"))
       sortby=params[:sortby]
       ratingsfilter=session[:ratings]
 
       session[:sortby]=params[:sortby]
       #redirect with new parameters
-      flash.keep
-      redirect_to movies_path, sortby: sortby, ratings: ratingsfilter
+      if not ratingsfilter.nil?
+        flash.keep
+        redirect_to controller: 'movies', sortby: sortby, ratings: ratingsfilter
+      end
     elsif not (params.has_key?("sortby")) and params.has_key?("ratings")
       sortby=session[:sortby]
       ratingsfilter=params[:ratings]
@@ -36,6 +41,8 @@ class MoviesController < ApplicationController
       flash.keep
       redirect_to movies_path, sortby: sortby, ratings: ratingsfilter
     else
+      sortby=params[:sortby]
+      ratings=params[:ratings]
       session[:ratings]=params[:ratings]
       session[:sortby]=params[:sortby]
       #no need to redirect, we have both
@@ -47,18 +54,20 @@ class MoviesController < ApplicationController
       @ratingscheck = ratingsfilter.keys
     end
     
-    #TODO filter on keys, remember checked buttons, make all buttons checked at start 
-    if sortby=='title'
-      @movies = Movie.order(:title)
-    elsif sortby=='date'
-      @movies = Movie.order(:release_date)
+    #TODO filter on keys, remember checked buttons, make all buttons checked at start
+    curchain = Movie.all
+    if ratingsfilter.nil?
+      curchain = curchain.all #should never happen
     else
-      if ratingsfilter.nil?
-        @movies = Movie.all #TODO make this use session settings
-      else
-        @movies=Movie.where(:rating => ratingsfilter.keys)
-      end
+      curchain=curchain.where(:rating => ratingsfilter.keys)
     end
+    puts sortby
+    if sortby=='title'
+      curchain = curchain.order(:title)
+    elsif sortby=='date'
+      curchain = curchain.order(:release_date)
+    end
+    @movies = curchain
   end
 
   def new
