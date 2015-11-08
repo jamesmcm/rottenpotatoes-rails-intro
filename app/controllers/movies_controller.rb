@@ -22,7 +22,7 @@ class MoviesController < ApplicationController
         flash.keep
         redirect_to controller: 'movies', sortby: sortby, ratings: ratingsfilter
       end
-    elsif params.has_key?("sortby") and not (params.has_key?("ratings"))
+    elsif params.has_key?("sortby") and (not (params.has_key?("ratings")))
       sortby=params[:sortby]
       ratingsfilter=session[:ratings]
 
@@ -32,14 +32,16 @@ class MoviesController < ApplicationController
         flash.keep
         redirect_to controller: 'movies', sortby: sortby, ratings: ratingsfilter
       end
-    elsif not (params.has_key?("sortby")) and params.has_key?("ratings")
+    elsif (not (params.has_key?("sortby"))) and params.has_key?("ratings")
       sortby=session[:sortby]
       ratingsfilter=params[:ratings]
 
       session[:ratings]=params[:ratings]
       #redirect with new parameters
-      flash.keep
-      redirect_to movies_path, sortby: sortby, ratings: ratingsfilter
+      if not sortby.nil?
+        flash.keep
+        redirect_to controller: 'movies', sortby: sortby, ratings: ratingsfilter
+      end
     else
       sortby=params[:sortby]
       ratings=params[:ratings]
